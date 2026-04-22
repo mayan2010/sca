@@ -214,12 +214,12 @@ jobs:
                               "options": {
                                   "temperature": 0.1,
                                   "num_ctx": 4096,
-                                  "num_predict": 1024
+                                  "num_predict": 256
                               }
                           }
                           
                           print(f"Querying local Mistral (attempt {attempt + 1})...")
-                          response = requests.post(f"{self.host}/api/generate", json=payload, timeout=300)
+                          response = requests.post(f"{self.host}/api/generate", json=payload, timeout=1200)
                           response.raise_for_status()
                           
                           result = response.json().get("response", "")
@@ -263,7 +263,7 @@ jobs:
                   with open('scan-results/sonar-results/sonar-results.json', 'r') as f:
                       sonar_data = json.load(f)
                       print(f"SonarQube: Processing {len(sonar_data.get('issues', []))} issues")
-                      for issue in sonar_data.get('issues', [])[:10]:
+                      for issue in sonar_data.get('issues', [])[:5]:
                           findings.append({
                               "tool": "SonarQube",
                               "severity": issue.get('severity', 'UNKNOWN'),
@@ -281,7 +281,7 @@ jobs:
                       snyk_data = json.load(f)
                       vulns = snyk_data.get('vulnerabilities', [])
                       print(f"Snyk: Processing {len(vulns)} vulnerabilities")
-                      for vuln in vulns[:5]:
+                      for vuln in vulns[:3]:
                           findings.append({
                               "tool": "Snyk",
                               "severity": vuln.get('severity', 'unknown'),
@@ -299,7 +299,7 @@ jobs:
                       site_data = zap_data.get('site', [{}])[0] if zap_data.get('site') else {}
                       alerts = site_data.get('alerts', [])
                       print(f"ZAP: Processing {len(alerts)} alerts")
-                      for alert in alerts[:5]:
+                      for alert in alerts[:3]:
                           findings.append({
                               "tool": "ZAP",
                               "severity": alert.get('riskdesc', 'Unknown Risk'),
